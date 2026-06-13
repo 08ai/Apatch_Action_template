@@ -15,7 +15,7 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Prepare Configuration
       run: |
         CONFIG_ENV=$(cat config.env | grep -w "CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)
@@ -199,6 +199,7 @@ jobs:
     - name: Integrate KP
       run: |
         cd $GITHUB_WORKSPACE/KernelSource
+        git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
         git clone --depth=1 https://github.com/bmax121/KernelPatch.git
         grep -q KernelPatch drivers/Makefile || echo "obj-$(CONFIG_KP) += KernelPatch/" >> drivers/Makefile
         grep -q KernelPatch drivers/Kconfig || echo "source \"drivers/KernelPatch/Kconfig\"" >> drivers/Kconfig
@@ -214,6 +215,7 @@ jobs:
     - name: Integrate KP
       run: |
         cd $GITHUB_WORKSPACE/KernelSource
+        git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
         git clone --depth=1 https://github.com/bmax121/KernelPatch.git
         grep -q KernelPatch drivers/Makefile || echo "obj-$(CONFIG_KP) += KernelPatch/" >> drivers/Makefile
         grep -q KernelPatch drivers/Kconfig || echo "source \"drivers/KernelPatch/Kconfig\"" >> drivers/Kconfig
