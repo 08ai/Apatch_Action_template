@@ -161,6 +161,7 @@ jobs:
     - name: Setup Configuration for Kernel
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        git clone --depth=1 https://github.com/tiann/KernelSU.git drivers/kernelsu || true
         echo " " >> arch/${{ env.ARCH }}/Kconfig
         echo 'source "apatch/Kconfig"' >> arch/${{ env.ARCH }}/Kconfig
         echo "CONFIG_APATCH_SUPPORT=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
@@ -188,6 +189,7 @@ jobs:
     - name: Build kernel
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        git clone --depth=1 https://github.com/tiann/KernelSU.git drivers/kernelsu || true
         export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/bin:$PATH
         export KBUILD_BUILD_HOST=Github-Action
         export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
