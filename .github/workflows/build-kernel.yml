@@ -191,9 +191,11 @@ jobs:
         max-size: 2G
 
     - name: Build kernel
-    - name: Integrate KP and SUSFS
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/bin:$PATH
+        export KBUILD_BUILD_HOST=Github-Action
+        export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
         git clone --depth=1 https://github.com/bmax121/KernelPatch.git
         grep -q KernelPatch drivers/Makefile || echo "obj-$(CONFIG_KP) += KernelPatch/" >> drivers/Makefile
         grep -q KernelPatch drivers/Kconfig || echo "source \"drivers/KernelPatch/Kconfig\"" >> drivers/Kconfig
@@ -202,18 +204,10 @@ jobs:
         scripts/config --set-str KP_SKEY aa112233
         scripts/config --set-str LOCALVERSION -qianjibian
 
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/bin:$PATH
-        export KBUILD_BUILD_HOST=Github-Action
-        export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
         make -j$(nproc --all) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.KERNEL_CONFIG }}
         if [ ${{ env.ENABLE_CCACHE }} = true ]; then
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
         else
-            make -j$(nproc --all) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
-        fi
-
     - name: Check a kernel output files
       run: |
        cd $GITHUB_WORKSPACE/kernel_workspace
